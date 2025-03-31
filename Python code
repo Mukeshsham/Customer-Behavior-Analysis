@@ -1,0 +1,168 @@
+#import pandas 
+import pandas as pd
+import numpy as np
+
+#Read and view data into pandas dataframe
+data = pd.read_csv("D:\DS_ML\Customer_Behavior_Analysis\customers.csv")
+data.head()
+
+
+#missing value
+data.isnull().sum()
+
+
+#drop the missing value
+df = data.dropna().copy()
+
+
+#check for dulpicdate
+df.duplicated().sum()
+
+
+#type cast
+df.dtypes
+
+
+# Database set
+
+from mysql.connector import connect as ct # type: ignore
+
+# Create connection
+connection = ct(
+    host='localhost',
+    port='3306',# Port should be an integer, not a string
+    user='root',
+    password='Shamsingh@1234',
+    database='customer_analytics'  # Use 'database' instead of 'db'
+)
+
+print(connection.is_connected())  # Corrected method name
+
+# Close the connection when you're done
+connection.close()
+
+
+
+import pandas as pd
+
+# Load datasets into DataFrames
+try:
+    customers = pd.read_csv('Customers.csv')
+    journey = pd.read_csv('Customer_journey.csv')
+    engagement = pd.read_csv('engagement_data.csv')
+    reviews = pd.read_csv('Customer_reviews.csv')
+    
+
+    # Preview data structure
+    print("Customers DataFrame:")
+    print(customers.head())
+    
+    print("\nCustomer Journey DataFrame:")
+    print(journey.head())
+
+    print("\nCustomer engagement DataFrame:")
+    print(engagement.head())
+    
+    print("\nCustomer Reviews DataFrame:")
+    print(reviews.head())
+
+except FileNotFoundError as e:
+    print(f"Error: {e}. Please check if the file exists in the specified path.")
+except pd.errors.EmptyDataError:
+    print("Error: One of the files is empty.")
+except pd.errors.ParserError:
+    print("Error: There was a problem parsing one of the files.")
+
+
+
+
+from textblob import TextBlob
+
+# Analyze sentiment of review text
+reviews['Sentiment'] = reviews['ReviewText'].apply(lambda x: TextBlob(x).sentiment.polarity)
+
+# Find negative reviews (sentiment < 0)
+negative_reviews = reviews[reviews['Sentiment'] < 0]
+print(negative_reviews[['ProductID', 'ReviewText']].head())
+
+
+
+
+import matplotlib.pyplot as plt
+
+# Plot age distribution of customers who made purchases
+purchases = journey[journey['Action'] == 'Purchase']
+merged_data = pd.merge(purchases, customers, on='CustomerID')
+
+plt.hist(merged_data['Age'], bins=10)
+plt.xlabel('Age')
+plt.ylabel('Number of Purchases')
+plt.title('Age Distribution of Purchasers')
+plt.show()
+
+
+
+
+#Where are customers leaving?
+
+#Check where customers drop off
+import pandas as pd
+
+# Load the CustomerJourney data from a CSV file
+# Replace 'CustomerJourney.csv' with your actual file path
+customer_journey = pd.read_csv('Customer_journey.csv')
+# Calculate the number of visitors and purchases by stage
+drop_off_analysis = customer_journey.groupby('Stage').agg(
+    Visitors=('CustomerID', 'count'),  # Count of visitors (CustomerID)
+    Purchases=('Action', lambda x: (x == 'Purchase').sum())  # Count purchases
+).reset_index()
+
+# Display the results
+print(drop_off_analysis)
+
+
+
+
+
+#What products do people hate?
+
+#Check product ratings
+import pandas as pd
+
+# Load the SportsProducts and ReviewData from CSV files
+sports_products = pd.read_csv('Products.csv')  # Replace with your actual file path
+review_data = pd.read_csv('customer_reviews.csv')          # Replace with your actual file path
+# Merge the two DataFrames on ProductID
+merged_data = pd.merge(sports_products, review_data, on='ProductID', how='inner')
+# Calculate average rating and review count by product
+product_ratings = merged_data.groupby(['ProductID', 'ProductName']).agg(
+    AvgRating=('Rating', 'mean'),        # Calculate average rating
+    ReviewCount=('ReviewID', 'count')    # Count number of reviews
+).reset_index()
+
+# Filter for products with an average rating less than 3.5
+bad_rated_products = product_ratings[product_ratings['AvgRating'] < 3.5]
+
+# Display the results
+print(bad_rated_products)
+
+
+
+
+
+#Find customers with the most purchases
+
+import pandas as pd
+
+# Load the CustomerJourney data from a CSV file
+# Replace 'CustomerJourney.csv' with your actual file path
+customer_journey = pd.read_csv('Customer_journey.csv')
+# Count total purchases for each customer
+customer_purchases = customer_journey[customer_journey['Action'] == 'Purchase'].groupby('CustomerID').size().reset_index(name='TotalPurchases')
+
+# Sort by TotalPurchases in descending order and get the top 10 customers
+top_customers = customer_purchases.sort_values(by='TotalPurchases', ascending=False).head(10)
+
+# Display the results
+print(top_customers)
+
